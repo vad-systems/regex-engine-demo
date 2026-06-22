@@ -1,5 +1,5 @@
 from typing import Dict, List, Set, Optional
-from python.ast_parser.ast_nodes import ASTNode, Literal, Concatenation, Alternation, Star, CaptureGroup, CharacterGroup
+from python.ast_parser.ast_nodes import ASTNode, Literal, Concatenation, Alternation, Star, CharacterGroup
 from python.automaton.nfa import State, NFA
 
 class NFABuilder:
@@ -50,17 +50,6 @@ class NFABuilder:
             accept = self._new_state()
             for char in node.chars:
                 start.add_transition(char, accept)
-            return NFA(start, accept)
-        elif isinstance(node, CaptureGroup):
-            start = self._new_state()
-            accept = self._new_state()
-            inner = self._transform(node.expression)
-            
-            # Start tag: group_id * 2
-            start.add_transition(None, inner.start_state, tag_id=node.group_id * 2)
-            # End tag: group_id * 2 + 1
-            inner.accept_state.add_transition(None, accept, tag_id=node.group_id * 2 + 1)
-            
             return NFA(start, accept)
         
         raise ValueError(f"Unknown node type: {type(node)}")

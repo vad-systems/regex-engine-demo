@@ -1,0 +1,4 @@
+username,email
+user1,user1@example.com
+user2,invalid-email
+user3,user3@test.org

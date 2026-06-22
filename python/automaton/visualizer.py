@@ -18,7 +18,8 @@ def nfa_to_dot(nfa: NFA) -> str:
         
         for transition in state.transitions:
             label = transition.char if transition.char is not None else "ε"
-            dot.append(f'  "{state.name}" -> "{transition.target.name}" [label="{label}"];')
+            color = "black" if transition.char is not None else "gray"
+            dot.append(f'  "{state.name}" -> "{transition.target.name}" [label="{label}", color={color}];')
             if transition.target not in visited:
                 stack.append(transition.target)
                 
