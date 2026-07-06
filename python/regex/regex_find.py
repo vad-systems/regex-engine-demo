@@ -1,5 +1,6 @@
 from automaton import NFAExecutor
 
+
 def regex_find(pattern, str, parse_func=None, build_func=None):
     if parse_func is None:
         raise ValueError("Kein Parser übergeben")

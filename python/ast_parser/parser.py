@@ -1,15 +1,14 @@
 from typing import Callable, List, Optional, Type
-from .ast_nodes import Literal, Concatenation, Alternation, Star, ASTNode
+from .ast_nodes import Literal, Concatenation, Alternation, ASTNode
+
 
 class RegexParser:
     def __init__(self, pattern: str):
         self.pattern = pattern
         self.pos = 0
-        
+
         # Extensibility points
-        self.postfix_handlers = {
-            '*': lambda node: Star(node)
-        }
+        self.postfix_handlers = {}
         self.atom_handlers: List[Callable[['RegexParser'], Optional[ASTNode]]] = [
             lambda p: p._handle_escape(),
             lambda p: p._handle_parentheses()
@@ -46,7 +45,7 @@ class RegexParser:
         node = self.parse_atom()
         while True:
             char = self.peek()
-            if char in self.postfix_handlers:
+            if char and char in self.postfix_handlers:
                 self.consume()
                 node = self.postfix_handlers[char](node)
             else:
@@ -59,7 +58,7 @@ class RegexParser:
             result = handler(self)
             if result:
                 return result
-        
+
         # Fallback to literal
         char = self.consume()
         if char is None:
@@ -77,12 +76,13 @@ class RegexParser:
 
     def _handle_escape(self) -> Optional[ASTNode]:
         if self.peek() == '\\':
-            self.consume() # consume '\'
+            self.consume()  # consume '\'
             char = self.consume()
             if char is None:
                 raise ValueError("Trailing backslash at end of pattern")
             return Literal(char)
         return None
+
 
 def regex_parsen(pattern: str) -> ASTNode:
     parser = RegexParser(pattern)

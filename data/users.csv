@@ -2,3 +2,6 @@ username,email
 user1,user1@example.com
 user2,invalid-email
 user3,user3@test.org
+user4,user4@domain.co.uk
+user5,user5.name@sub.domain.com
+user6,missing-at-sign
