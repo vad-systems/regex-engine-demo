@@ -13,11 +13,18 @@ class Literal(ASTNode):
 
 
 @dataclass
+class UnaryOp(ASTNode):
+    expression: ASTNode
+
+
+@dataclass
 class BinaryOp(ASTNode):
     left: Optional[ASTNode]
     right: Optional[ASTNode]
     pass
 
+
+# Base Operators
 
 @dataclass
 class Concatenation(BinaryOp):
@@ -29,10 +36,7 @@ class Alternation(BinaryOp):
     pass
 
 
-@dataclass
-class UnaryOp(ASTNode):
-    expression: ASTNode
-
+# Addons
 
 @dataclass
 class Repetition(UnaryOp):

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .ast_nodes import ASTNode, Literal, Concatenation, Alternation, Repetition, CharacterGroup, BinaryOp, UnaryOp
+from .ast_nodes import ASTNode, Literal, Repetition, CharacterGroup, BinaryOp, UnaryOp
 
 
 def ast_to_dot(node: Optional[ASTNode]) -> str:
@@ -13,15 +13,15 @@ def ast_to_dot(node: Optional[ASTNode]) -> str:
         node_id += 1
 
         if curr_node is None:
-            label = f"X"
+            label = f"ε"
+            dot.append(f'  {curr_id} [label="{label}",color="gray",fontcolor="gray"];')
         else:
             label = curr_node.__class__.__name__
             if isinstance(curr_node, Literal):
                 label += f" ('{curr_node.char}')"
             elif isinstance(curr_node, Repetition):
                 label += f" ({curr_node.min}, {curr_node.max})"
-
-        dot.append(f'  {curr_id} [label="{label}"];')
+            dot.append(f'  {curr_id} [label="{label}"];')
 
         if isinstance(curr_node, BinaryOp):
             left_id = traverse(curr_node.left)
@@ -41,15 +41,15 @@ def ast_to_dot(node: Optional[ASTNode]) -> str:
     return "\n".join(dot)
 
 
-def ast_to_ascii(node: ASTNode, indent: str = "") -> str:
+def ast_to_ascii(node: Optional[ASTNode], indent: str = "") -> str:
+    if node is None:
+        return f"{indent}ε"
     if isinstance(node, Literal):
         return f"{indent}Literal('{node.char}')"
     elif isinstance(node, CharacterGroup):
         return f"{indent}CharacterGroup(\"\".join(node.chars))"
-    elif isinstance(node, Concatenation):
-        return f"{indent}Concatenation\n{ast_to_ascii(node.left, indent + '  ')} \n{ast_to_ascii(node.right, indent + '  ')}"
-    elif isinstance(node, Alternation):
-        return f"{indent}Alternation\n{ast_to_ascii(node.left, indent + '  ')} \n{ast_to_ascii(node.right, indent + '  ')}"
+    elif isinstance(node, BinaryOp):
+        return f"{indent}{node.__class__.__name__}\n{ast_to_ascii(node.left, indent + '  ')} \n{ast_to_ascii(node.right, indent + '  ')}"
     elif isinstance(node, UnaryOp):
         return f"{indent}{node.__class__.__name__}\n{ast_to_ascii(node.expression, indent + '  ')}"
     return f"{indent}{type(node).__name__}"
