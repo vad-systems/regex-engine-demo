@@ -1,21 +1,25 @@
-from .ast_nodes import ASTNode, Literal, Concatenation, Alternation, Star, Plus, Optional, Repetition, CharacterGroup, \
-    BinaryOp, UnaryOp
+from typing import Optional
+
+from .ast_nodes import ASTNode, Literal, Concatenation, Alternation, Repetition, CharacterGroup, BinaryOp, UnaryOp
 
 
-def ast_to_dot(node: ASTNode) -> str:
+def ast_to_dot(node: Optional[ASTNode]) -> str:
     dot = ["digraph AST {", "  node [fontname=\"Arial\"];"]
     node_id = 0
 
-    def traverse(curr_node: ASTNode):
+    def traverse(curr_node: Optional[ASTNode]):
         nonlocal node_id
         curr_id = node_id
         node_id += 1
 
-        label = curr_node.__class__.__name__
-        if isinstance(curr_node, Literal):
-            label += f" ('{curr_node.char}')"
-        elif isinstance(curr_node, Repetition):
-            label += f" ({curr_node.min}, {curr_node.max})"
+        if curr_node is None:
+            label = f"X"
+        else:
+            label = curr_node.__class__.__name__
+            if isinstance(curr_node, Literal):
+                label += f" ('{curr_node.char}')"
+            elif isinstance(curr_node, Repetition):
+                label += f" ({curr_node.min}, {curr_node.max})"
 
         dot.append(f'  {curr_id} [label="{label}"];')
 
@@ -46,6 +50,6 @@ def ast_to_ascii(node: ASTNode, indent: str = "") -> str:
         return f"{indent}Concatenation\n{ast_to_ascii(node.left, indent + '  ')} \n{ast_to_ascii(node.right, indent + '  ')}"
     elif isinstance(node, Alternation):
         return f"{indent}Alternation\n{ast_to_ascii(node.left, indent + '  ')} \n{ast_to_ascii(node.right, indent + '  ')}"
-    elif isinstance(node, (Star, Plus, Optional, Repetition)):
+    elif isinstance(node, UnaryOp):
         return f"{indent}{node.__class__.__name__}\n{ast_to_ascii(node.expression, indent + '  ')}"
     return f"{indent}{type(node).__name__}"

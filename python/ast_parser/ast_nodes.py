@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Union, List
+from typing import Union, List, Optional
 
 
 @dataclass
@@ -14,8 +14,8 @@ class Literal(ASTNode):
 
 @dataclass
 class BinaryOp(ASTNode):
-    left: ASTNode
-    right: ASTNode
+    left: Optional[ASTNode]
+    right: Optional[ASTNode]
     pass
 
 
@@ -32,21 +32,6 @@ class Alternation(BinaryOp):
 @dataclass
 class UnaryOp(ASTNode):
     expression: ASTNode
-
-
-@dataclass
-class Star(UnaryOp):
-    pass
-
-
-@dataclass
-class Plus(UnaryOp):
-    pass
-
-
-@dataclass
-class Optional(UnaryOp):
-    pass
 
 
 @dataclass

@@ -1,4 +1,4 @@
-from typing import Callable, List, Optional, Type
+from typing import Callable, List, Optional
 from .ast_nodes import Literal, Concatenation, Alternation, ASTNode
 
 
@@ -23,36 +23,42 @@ class RegexParser:
             self.pos += 1
         return char
 
-    def parse(self) -> ASTNode:
+    def parse(self) -> Optional[ASTNode]:
         return self.parse_expression()
 
-    def parse_expression(self) -> ASTNode:
+    def parse_expression(self) -> Optional[ASTNode]:
         node = self.parse_term()
         while self.peek() == '|':
             self.consume()
-            right = self.parse_term()
+            try:
+                right = self.parse_term()
+            except ValueError:
+                right = None
             node = Alternation(node, right)
         return node
 
-    def parse_term(self) -> ASTNode:
+    def parse_term(self) -> Optional[ASTNode]:
         node = self.parse_factor()
         while self.peek() and self.peek() != ')' and self.peek() != '|':
-            right = self.parse_factor()
+            try:
+                right = self.parse_factor()
+            except ValueError:
+                right = None
             node = Concatenation(node, right)
         return node
 
-    def parse_factor(self) -> ASTNode:
+    def parse_factor(self) -> Optional[ASTNode]:
         node = self.parse_atom()
         while True:
             char = self.peek()
-            if char and char in self.postfix_handlers:
+            if char is not None and char in self.postfix_handlers:
                 self.consume()
                 node = self.postfix_handlers[char](node)
             else:
                 break
         return node
 
-    def parse_atom(self) -> ASTNode:
+    def parse_atom(self) -> Optional[ASTNode]:
         # Try registered atom handlers first
         for handler in self.atom_handlers:
             result = handler(self)
@@ -84,6 +90,6 @@ class RegexParser:
         return None
 
 
-def regex_parsen(pattern: str) -> ASTNode:
+def regex_parsen(pattern: str) -> Optional[ASTNode]:
     parser = RegexParser(pattern)
     return parser.parse()
